@@ -1,0 +1,94 @@
+"use client";
+
+import 'leaflet/dist/leaflet.css';
+import React, { useState } from "react";
+import dynamic from "next/dynamic";
+import L from "leaflet";
+
+// Dynamically import MapContainer and other components to prevent SSR issues
+const MapContainer = dynamic(() => import("react-leaflet").then(mod => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import("react-leaflet").then(mod => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import("react-leaflet").then(mod => mod.Marker), { ssr: false });
+const Popup = dynamic(() => import("react-leaflet").then(mod => mod.Popup), { ssr: false });
+
+const points = [
+  {
+    description: "California, USA",
+    lat: 36.7783,
+    lng: -119.4179,
+  },
+  {
+    description: "Texas, USA",
+    lat: 31.9686,
+    lng: -99.9018,
+  },
+  {
+    description: "Florida, USA",
+    lat: 27.994402,
+    lng: -81.760254,
+  },
+  {
+    description: "New York, USA",
+    lat: 40.7128,
+    lng: -74.006,
+  },
+  {
+    description: "Washington, USA",
+    lat: 47.7511,
+    lng: -120.7401,
+  },
+];
+
+// Custom red dot marker icon
+const redDotIcon = new L.Icon({
+  iconUrl: "/images/red-circle.svg", // Red dot image
+  iconSize: [12, 12], // Size of the red dot
+  iconAnchor: [6, 6], // Center the dot (half the size)
+  popupAnchor: [0, -6], // Adjust where the popup appears
+});
+
+const Map: React.FC = () => {
+  const [activeContract, setActiveContract] = useState<string | null>(null);
+
+  return (
+    <div className="min-h-screen flex">
+      {/* Left Pane: Map */}
+      <div className="w-1/2 h-screen">
+        <MapContainer
+          center={[37.0902, -95.7129]} // Default center (USA)
+          zoom={4}
+          className="h-full w-full"
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {points.map((point) => (
+            <Marker
+              position={[point.lat, point.lng]}
+              icon={redDotIcon} // Using the custom red dot icon
+            >
+              <Popup>{point.description}</Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
+
+      <div className="w-1/2 h-screen p-4 overflow-auto bg-gray-100 text-black">
+        <h1 className="text-2xl font-bold mb-4">Points</h1>
+        <ul>
+          {points.map((point) => (
+            <li>
+              <h3 className="text-xl font-bold text-blue-600">
+                {point.description}
+              </h3>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default Map;
+
